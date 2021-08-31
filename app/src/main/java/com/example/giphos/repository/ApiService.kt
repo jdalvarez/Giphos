@@ -13,7 +13,7 @@ interface ApiService {
     @GET("search")
     suspend fun getSearchGiphy(
         @Query("api_key") apiKey: String = AppConstants.API_KEY,        //le asigno la apikey por defecto
-        @Query("q") query: String,
+        @Query("q") query: String = "a",
         @Query("limit") limit:Int= AppConstants.LIMIT
     ): Response<GiphySearchResponse>
 

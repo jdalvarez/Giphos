@@ -1,20 +1,20 @@
 package com.example.giphos
 
 import android.net.Uri
-import android.view.View
-import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.giphos.databinding.ItemGiphyBinding
+import com.example.giphos.ui.OnClickListener
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.drawee.interfaces.DraweeController
 
-class GiphyViewHolder(view:View):RecyclerView.ViewHolder(view) {
-    private val binding = ItemGiphyBinding.bind(view)
-
-    fun render(giphys:GiphyItem){
-        val uri: Uri = Uri.parse(giphys.images.previewGif?.url)
+class GiphyViewHolder(
+    private val itemBinding: ItemGiphyBinding,
+    val onShortClick:(giphyUrl:String) -> Unit,
+    val onLongClick: (giphyUrl:String) -> Boolean):RecyclerView.ViewHolder(itemBinding.root) {
+    fun render(giphy:GiphyItem){
+        itemBinding.giphyCard.setOnClickListener {onShortClick(giphy.images.original?.url.toString())}
+        itemBinding.giphyCard.setOnLongClickListener { onLongClick(giphy.images.previewGif?.url.toString()) }
+        val uri: Uri = Uri.parse(giphy.images.previewGif?.url)
         val controller = Fresco.newDraweeControllerBuilder().setUri(uri).setAutoPlayAnimations(true).build()
-        binding.gif.controller = controller
-
+        itemBinding.gif.controller = controller
     }
 }

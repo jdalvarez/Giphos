@@ -5,15 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.giphos.databinding.FragmentFavoriteBinding
+import com.example.giphos.databinding.FragmentGiphyBinding
 
 class FavoriteFragment : Fragment() {
-  lateinit var binding: FragmentFavoriteBinding
+  lateinit var binding: FragmentGiphyBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentFavoriteBinding.inflate(inflater,container,false)
+        binding = FragmentGiphyBinding.inflate(inflater,container,false)
         return binding.root
     }
 

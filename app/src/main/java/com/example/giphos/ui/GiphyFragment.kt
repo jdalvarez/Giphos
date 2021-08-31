@@ -1,27 +1,40 @@
 package com.example.giphos.ui
 
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.giphos.application.AppConstants
-import com.example.giphos.GiphAdapter
 import com.example.giphos.GiphyItem
+import com.example.giphos.core.Resource
+import com.example.giphos.data.remote.GiphyDataSource
 import com.example.giphos.databinding.FragmentGiphyBinding
-import com.example.giphos.repository.ApiService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.example.giphos.presentation.GiphosViewModel
+import com.example.giphos.presentation.GiphyViewModelFactory
+import com.example.giphos.repository.GiphyRepositoryImpl
+import com.example.giphos.repository.RetrofiClient
+import com.example.giphos.ui.adapters.GiphyAdapter
 
-class GiphyFragment : Fragment(){//, SearchView.OnQueryTextListener {
+class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
+    private val viewModel by viewModels<GiphosViewModel> {
+        GiphyViewModelFactory(
+            GiphyRepositoryImpl(
+                GiphyDataSource(RetrofiClient.apiservice)
+            )
+        )
+    }
+
     private lateinit var binding: FragmentGiphyBinding
-    private lateinit var adapter: GiphAdapter
+    private lateinit var adapter: GiphyAdapter
     lateinit var mContext: Context
 
     override fun onAttach(context: Context) {
@@ -33,58 +46,76 @@ class GiphyFragment : Fragment(){//, SearchView.OnQueryTextListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentGiphyBinding.inflate(inflater,container,false)
-        //binding.searchView.setOnQueryTextListener(this)
-        initRecyclerView()
-        search()
+        binding = FragmentGiphyBinding.inflate(inflater, container, false)
+        binding.searchView.setOnQueryTextListener(this)
         return binding.root
     }
 
-    private fun initRecyclerView() {
-        adapter = GiphAdapter()
-        binding.rvMain.layoutManager = GridLayoutManager(mContext,2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initRecycler()
+        runSearch()
+    }
+
+    private fun initRecycler() {
+        binding.rvMain.layoutManager = GridLayoutManager(mContext, 2)
+        adapter = GiphyAdapter(::shareGiphy, ::addFavorites)
         binding.rvMain.adapter = adapter
     }
 
-    //Obtengo mi instancia de retrofit
-    private fun getRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(AppConstants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        runSearch(query)
+        return true
     }
 
-    private fun search(){
-        CoroutineScope(Dispatchers.IO).launch {
-            try{
-                val response = getRetrofit().create(ApiService::class.java).getSearchGiphy( query = "a")
-                if (response.isSuccessful) {
-                    val giphyResponse = response.body()
-                    val giphys: List<GiphyItem> = giphyResponse?.data ?: emptyList()
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        adapter.setData(giphys)
-                    }
-                }
-            } catch (e:Exception){
-                Log.d("exception","${e.message}")
-            }
-
-
-
-
+    override fun onQueryTextChange(newText: String?): Boolean {
+        if (newText.isNullOrEmpty()){
+            runSearch()
         }
+        return true
     }
 
- //   override fun onQueryTextSubmit(query: String?): Boolean {
-   //     if (!query.isNullOrEmpty()){
-     //       search(query.toLowerCase())
-  //      }
-   //    return true
-    //}
+    private fun hideKeyboard() {
+        val imm = mContext.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.searchView.windowToken, 0)
+    }
 
-   // override fun onQueryTextChange(newText: String?): Boolean {
-   //     return true
-   // }
+    private fun runSearch(query: String? = null) {
+        viewModel.fetchSearchGiphy(query).observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is Resource.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                is Resource.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    val giphyResponse = it.data.body()
+                    val giphys: List<GiphyItem> = giphyResponse?.data ?: emptyList()
+                    adapter.setData(giphys)
+
+                }
+
+                is Resource.Failure -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(context,"CODE: ${it.data.code()}, MSG: ${it.data.raw()}",Toast.LENGTH_SHORT).show()
+                }
+            }
+            hideKeyboard()
+        })       //esto retorna un Livedata y necesitamos observar
+    }
+
+    private fun shareGiphy(giphyUrl: String) {
+       val intent = Intent()
+        intent.type = "text/plain"
+        intent.putExtra(Intent.EXTRA_TEXT,"Ilove this Gifs: \n $giphyUrl")
+        intent.action = Intent.ACTION_SEND
+        val chooseIntent = Intent.createChooser(intent,"Choose an Option:")
+        startActivity(chooseIntent)
+    }
+
+    private fun addFavorites(giphyUrl: String): Boolean {
+        Toast.makeText(mContext,"PUTO: $giphyUrl ", Toast.LENGTH_LONG).show()
+        return true
+    }
 
 }
+

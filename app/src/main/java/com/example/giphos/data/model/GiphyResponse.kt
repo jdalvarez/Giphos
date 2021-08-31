@@ -17,7 +17,8 @@ class GiphyItem(
 )
 
 class GiphyImages(
-    @SerializedName("preview_gif") val previewGif:GiphyImage?         //puede que alguno no tenga esta propiedad
+    @SerializedName("preview_gif") val previewGif:GiphyImage?,         //puede que alguno no tenga esta propiedad
+    @SerializedName("original") val original:GiphyImage?
 )
 
 class GiphyImage(
