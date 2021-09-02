@@ -1,5 +1,7 @@
 package com.example.giphos.ui
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Intent
@@ -13,24 +15,24 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.airbnb.lottie.LottieAnimationView
 import com.example.giphos.GiphyItem
+import com.example.giphos.R
+import com.example.giphos.application.MainApplication
 import com.example.giphos.core.Resource
-import com.example.giphos.data.remote.GiphyDataSource
+import com.example.giphos.data.model.Giph
 import com.example.giphos.databinding.FragmentGiphyBinding
 import com.example.giphos.presentation.GiphosViewModel
 import com.example.giphos.presentation.GiphyViewModelFactory
-import com.example.giphos.repository.GiphyRepositoryImpl
-import com.example.giphos.repository.RetrofiClient
 import com.example.giphos.ui.adapters.GiphyAdapter
+import com.google.android.material.snackbar.Snackbar
 
 class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
+
     private val viewModel by viewModels<GiphosViewModel> {
-        GiphyViewModelFactory(
-            GiphyRepositoryImpl(
-                GiphyDataSource(RetrofiClient.apiservice)
-            )
-        )
+        GiphyViewModelFactory((requireActivity().application as MainApplication).repository)
     }
 
     private lateinit var binding: FragmentGiphyBinding
@@ -53,13 +55,18 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val navController = findNavController()
+            binding.favoritesBtn.setOnClickListener{
+                navController.navigate(R.id.favoriteFragment)
+            }
+
         initRecycler()
         runSearch()
     }
 
     private fun initRecycler() {
         binding.rvMain.layoutManager = GridLayoutManager(mContext, 2)
-        adapter = GiphyAdapter(::shareGiphy, ::addFavorites)
+        adapter = GiphyAdapter(::shareGiphy, ::addFavorites, ::likeAnimation)
         binding.rvMain.adapter = adapter
     }
 
@@ -88,10 +95,7 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
                 }
                 is Resource.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    val giphyResponse = it.data.body()
-                    val giphys: List<GiphyItem> = giphyResponse?.data ?: emptyList()
-                    adapter.setData(giphys)
-
+                    adapter.setData(it.data.body())
                 }
 
                 is Resource.Failure -> {
@@ -112,8 +116,18 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
         startActivity(chooseIntent)
     }
 
-    private fun addFavorites(giphyUrl: String): Boolean {
-        Toast.makeText(mContext,"PUTO: $giphyUrl ", Toast.LENGTH_LONG).show()
+    private fun addFavorites(giphy: Giph): Boolean {
+        viewModel.addToFavorites(giphy)
+        return true
+    }
+
+
+    private fun likeAnimation(imageView: LottieAnimationView, animation: Int):Boolean{
+        imageView.setAnimation(animation)
+        imageView.playAnimation()
+        imageView.animate()
+            .setDuration(2000)
+        imageView.setImageResource(R.drawable.empty)
         return true
     }
 

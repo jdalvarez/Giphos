@@ -20,13 +20,13 @@ class GiphyItem(
 )
 
 class GiphyImages(
-    @SerializedName("preview_gif") val previewGif: GiphyImage?,         //puede que alguno no tenga esta propiedad
-    @SerializedName("original") val original: GiphyImage?
+    @SerializedName("preview_gif") val previewGif: GiphyImage,         //puede que alguno no tenga esta propiedad
+    @SerializedName("original") val original: GiphyImage
 )
 
 class GiphyImage(
     @SerializedName("height") val height: String,
-    @SerializedName("url") val url: String,
+    @SerializedName("url") val url: String = "",
     @SerializedName("width") val width: String
 )
 
@@ -37,8 +37,17 @@ data class GiphyEntity(
     val id: String = "-1",
     @ColumnInfo(name = "title")
     val title: String = "",
-    @ColumnInfo(name = "Preview Image Url")
+    @ColumnInfo(name = "preview_image_url")
     val previewImageUrl: String = "",
-    @ColumnInfo(name = "Original Image Url")
+    @ColumnInfo(name = "original_image_url")
     val originalImageUrl: String = ""
 )
+
+fun GiphyItem.toGiphyEntity():GiphyEntity{
+    return GiphyEntity(
+        this.id,
+        this.title.toString(),
+        this.images.previewGif.url,
+        this.images.original.url
+    )
+}

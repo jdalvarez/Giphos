@@ -3,34 +3,39 @@ package com.example.giphos.ui.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.example.giphos.GiphyItem
 import com.example.giphos.GiphyViewHolder
+import com.example.giphos.R
+import com.example.giphos.data.model.Giph
 import com.example.giphos.databinding.ItemGiphyBinding
-
+import kotlin.reflect.KFunction1
 
 
 class GiphyAdapter(
-    private val onShortClick:(giphyUrl:String) -> Unit,
-    private val onLongClick: (giphyUrl:String) -> Boolean
-):RecyclerView.Adapter<GiphyViewHolder>() {
+    private val onShortClick: (giphyUrl: String) -> Unit,
+    private val onLongClick: KFunction1<Giph, Boolean>,
+    val likeAnimation: (iV: LottieAnimationView, animation: Int) -> Boolean
+) : RecyclerView.Adapter<GiphyViewHolder>() {
 
-    var giphys:MutableList<GiphyItem> = mutableListOf()
+    private var giphys: MutableList<Giph> = mutableListOf()
+    private val animation = R.raw.like_animate
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GiphyViewHolder {
         val binding = ItemGiphyBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val holder = GiphyViewHolder(binding,onShortClick,onLongClick)
+        val holder = GiphyViewHolder(binding, onShortClick, onLongClick, likeAnimation)
         return holder
     }
 
     override fun onBindViewHolder(holder: GiphyViewHolder, position: Int) {
-        holder.render(giphys[position])
+        holder.render(giphys[position],animation)
     }
 
     override fun getItemCount(): Int {
         return giphys.size
     }
 
-    fun setData(data:List<GiphyItem>?){
+    fun setData(data: List<Giph>?) {
         giphys.clear()
         if (data != null) {
             giphys.addAll(data)

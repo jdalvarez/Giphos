@@ -16,5 +16,13 @@
         android:scaleType="centerCrop"
         android:background="@color/black"/>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/like_iv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:src="@drawable/empty"/>
+
+
 
 </androidx.cardview.widget.CardView>
