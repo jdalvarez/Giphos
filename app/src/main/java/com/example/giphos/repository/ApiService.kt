@@ -12,7 +12,7 @@ import retrofit2.http.Query
 interface ApiService {
     @GET("search")
     suspend fun getSearchGiphy(
-        @Query("api_key") apiKey: String = AppConstants.API_KEY,        //le asigno la apikey por defecto
+        @Query("api_key") apiKey: String = AppConstants.API_KEY,
         @Query("q") query: String = "a",
         @Query("limit") limit:Int= AppConstants.LIMIT
     ): Response<GiphySearchResponse>
@@ -21,7 +21,7 @@ interface ApiService {
     suspend fun getRandomGiphy(@Query("api_key") apiKey: String = AppConstants.API_KEY): Response<GiphyRandomResponse>
 }
 
-//Obtengo mi instancia de retrofit con el apiservice
+
 object RetrofiClient{
     val apiservice by lazy{
         Retrofit.Builder()

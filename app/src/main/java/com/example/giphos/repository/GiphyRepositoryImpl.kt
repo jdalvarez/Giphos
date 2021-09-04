@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.Response
 
-//creo una instancia de datasource para poder acceder a sus metodos
+
 class GiphyRepositoryImpl(
     private val remoteDataSource: RemoteGiphyDataSource,
     private val localDataSource: GiphyDao
@@ -31,8 +31,6 @@ class GiphyRepositoryImpl(
     //Room
     override fun getAllFavorites(): Flow<List<Giph>> {
         val flowListGiphyEntity = localDataSource.getAllFavorites()
-        // map 1: FLow<List<A>> -> Flow<List<B>>
-        // map 2: List<A> -> List<B>
         return flowListGiphyEntity.map { listOfGiphyEntity ->
             listOfGiphyEntity.map { giphyEntity ->
                 giphyEntity.toGiph()

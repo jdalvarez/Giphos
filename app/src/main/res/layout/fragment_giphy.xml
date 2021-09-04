@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.GiphyFragment"
-    android:layout_gravity="center">
+    android:layout_gravity="center"
+    android:background="@color/black">
 
 
     <LinearLayout
@@ -25,15 +26,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:visibility="visible">
+            android:visibility="visible"
+            tools:ignore="UseCompoundDrawables">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_favorite" />
+                android:src="@drawable/ic_favorite"
+                tools:ignore="ContentDescription" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/favorite" />
+                android:text="@string/favorite"
+                android:textColor="@color/white"/>
         </LinearLayout>
 
         <LinearLayout
@@ -42,15 +46,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:ignore="UseCompoundDrawables">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_favorite" />
+                android:src="@drawable/ic_baseline_home_24"
+                tools:ignore="ContentDescription" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/home" />
+                android:text="@string/home"
+                android:textColor="@color/white"/>
         </LinearLayout>
 
 
@@ -85,10 +92,11 @@
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            app:iconifiedByDefault="false" />
 
     </androidx.cardview.widget.CardView>
 

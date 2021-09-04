@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/giphy_card"
     android:layout_width="match_parent"
@@ -18,10 +17,10 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/like_iv"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:src="@drawable/empty"/>
+        android:layout_weight="1" />
 
 
 

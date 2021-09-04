@@ -9,7 +9,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import java.lang.Exception
 
-class RemoteGiphyDataSource(private val apiService: ApiService) {      //apiService tiene metodos que van a buscar info al servidor
+class RemoteGiphyDataSource(private val apiService: ApiService) {
     suspend fun getSearchGiphy(query: String): Response<GiphySearchResponse> = apiService.getSearchGiphy(query = query)
 
     suspend fun getRandomGiphy(): Response<GiphySearchResponse> {

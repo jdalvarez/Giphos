@@ -10,7 +10,6 @@ interface GiphyRepository {
     suspend fun getRandomGiphy(): Response<List<Giph>>
 
     //Room
-    //Room
     fun getAllFavorites(): Flow<List<Giph>>
     suspend fun addToFavorites(giph: Giph)
     suspend fun removeFromFavorites(giphyItem: Giph)

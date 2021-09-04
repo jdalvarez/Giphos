@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -39,15 +40,15 @@ class FavoriteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentGiphyBinding.inflate(inflater,container,false)
+        binding = FragmentGiphyBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
-        viewModel.favoriteGiphyList.observe(viewLifecycleOwner){
-           adapter.setData(it)
+        viewModel.favoriteGiphyList.observe(viewLifecycleOwner) {
+            adapter.setData(it)
         }
         val navController = findNavController()
         binding.favoritesBtn.visibility = View.GONE
@@ -67,20 +68,26 @@ class FavoriteFragment : Fragment() {
     private fun shareGiphy(giphyUrl: String) {
         val intent = Intent()
         intent.type = "text/plain"
-        intent.putExtra(Intent.EXTRA_TEXT,"Ilove this Gifs: \n $giphyUrl")
+        intent.putExtra(Intent.EXTRA_TEXT, "Ilove this Gifs: \n $giphyUrl")
         intent.action = Intent.ACTION_SEND
-        val chooseIntent = Intent.createChooser(intent,"Choose an Option:")
+        val chooseIntent = Intent.createChooser(intent, "Choose an Option:")
         startActivity(chooseIntent)
     }
 
     private fun deleteFromFavorites(giphy: Giph): Boolean {
-        viewModel.deleteFromFavorites(giphy)
+        MyDialogFragment {
+            viewModel.deleteFromFavorites(giphy)
+        }.show(
+            parentFragmentManager,
+            "MyDialogFragment"
+        )
         return true
     }
 
-    private fun likeAnimation(imageView: LottieAnimationView, animation: Int):Boolean{
+    private fun likeAnimation(imageView: LottieAnimationView, animation: Int): Boolean {
         return true
     }
 
 
 }
+

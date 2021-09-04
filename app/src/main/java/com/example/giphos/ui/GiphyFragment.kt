@@ -49,19 +49,24 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentGiphyBinding.inflate(inflater, container, false)
-        binding.searchView.setOnQueryTextListener(this)
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.searchView.setOnQueryTextListener(this)
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val navController = findNavController()
             binding.favoritesBtn.setOnClickListener{
                 navController.navigate(R.id.favoriteFragment)
             }
-
         initRecycler()
-        runSearch()
+        setupObservers()
+        if(savedInstanceState == null){
+            viewModel.fetch()
+        }
     }
 
     private fun initRecycler() {
@@ -71,13 +76,13 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        runSearch(query)
+        viewModel.fetch(query)
         return true
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText.isNullOrEmpty()){
-            runSearch()
+            viewModel.fetch()
         }
         return true
     }
@@ -87,25 +92,26 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
         imm.hideSoftInputFromWindow(binding.searchView.windowToken, 0)
     }
 
-    private fun runSearch(query: String? = null) {
-        viewModel.fetchSearchGiphy(query).observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is Resource.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-                is Resource.Success -> {
-                    binding.progressBar.visibility = View.GONE
-                    adapter.setData(it.data.body())
-                }
+    private fun setupObservers() {
+            viewModel.responseLiveData.observe(viewLifecycleOwner, Observer {
+                when (it) {
+                    is Resource.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is Resource.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        adapter.setData(it.data)
+                    }
 
-                is Resource.Failure -> {
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(context,"CODE: ${it.data.code()}, MSG: ${it.data.raw()}",Toast.LENGTH_SHORT).show()
+                    is Resource.Failure -> {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(context,"CODE: ${it.data}, MSG: ${it.data}",Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-            hideKeyboard()
-        })       //esto retorna un Livedata y necesitamos observar
-    }
+                hideKeyboard()
+            })       //esto retorna un Livedata y necesitamos observar
+        }
+
 
     private fun shareGiphy(giphyUrl: String) {
        val intent = Intent()
@@ -123,11 +129,16 @@ class GiphyFragment : Fragment(), SearchView.OnQueryTextListener{
 
 
     private fun likeAnimation(imageView: LottieAnimationView, animation: Int):Boolean{
+        imageView.visibility = View.VISIBLE
         imageView.setAnimation(animation)
         imageView.playAnimation()
-        imageView.animate()
-            .setDuration(2000)
-        imageView.setImageResource(R.drawable.empty)
+        imageView.addAnimatorListener(object :AnimatorListenerAdapter(){
+            override fun onAnimationEnd(animation: Animator?) {
+                super.onAnimationEnd(animation)
+                    imageView.speed = -1f
+                    imageView.visibility = View.GONE
+                }
+        })
         return true
     }
 

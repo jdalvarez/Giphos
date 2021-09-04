@@ -2,9 +2,9 @@ package com.example.giphos.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
-import com.example.giphos.GiphyItem
 import com.example.giphos.GiphyViewHolder
 import com.example.giphos.R
 import com.example.giphos.data.model.Giph
@@ -35,12 +35,16 @@ class GiphyAdapter(
         return giphys.size
     }
 
-    fun setData(data: List<Giph>?) {
-        giphys.clear()
+   fun setData(data: List<Giph>?) {
         if (data != null) {
+            val diffutilCallback= AdapterDiffUtilCallback(giphys, data)
+            val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(diffutilCallback)
+            giphys.clear()
             giphys.addAll(data)
+            diffResult.dispatchUpdatesTo(this)
         }
-        notifyDataSetChanged()
     }
+
+
 
 }

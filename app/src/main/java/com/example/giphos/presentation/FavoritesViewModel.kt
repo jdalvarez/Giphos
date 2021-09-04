@@ -7,7 +7,7 @@ import com.example.giphos.repository.GiphyRepository
 import kotlinx.coroutines.launch
 
 class FavoritesViewModel(private val repo: GiphyRepository) :
-    ViewModel() { //usamos la interfaz GiphyRepository para implementar sus metodos
+    ViewModel() {
 
     val favoriteGiphyList = repo.getAllFavorites().asLiveData()
 
@@ -16,7 +16,7 @@ class FavoritesViewModel(private val repo: GiphyRepository) :
     }
 }
 
-//creamos el factory para ingresar el parametro repo en el constructor
+
 class FavoritesViewModelFactory(private val repo: GiphyRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return modelClass.getConstructor(GiphyRepository::class.java).newInstance(repo)

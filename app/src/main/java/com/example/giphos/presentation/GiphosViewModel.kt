@@ -9,19 +9,44 @@ import com.example.giphos.data.model.Giph
 import com.example.giphos.repository.GiphyRepository
 import com.example.giphos.toGiphyEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class GiphosViewModel(private val repo: GiphyRepository) :
-    ViewModel() { //usamos la interfaz GiphyRepository para implementar sus metodos
+    ViewModel() {
+
+    private val _responseLiveData = MutableLiveData<Resource<List<Giph>?>>()
+    val responseLiveData : LiveData<Resource<List<Giph>?>>
+        get() = _responseLiveData
 
     fun addToFavorites(giphy: Giph) = viewModelScope.launch() {
         repo.addToFavorites(giphy)
     }
 
+    fun fetch(query:String? = null) {
+        viewModelScope.launch {
+            _responseLiveData.value = Resource.Loading()
+
+            var response: Response<List<Giph>>? = null
+            if (!query.isNullOrEmpty()) {
+                response = repo.getSearchGiphy(query)
+            } else {
+                response = repo.getRandomGiphy()
+            }
+            if (response.isSuccessful) {
+                _responseLiveData.value = Resource.Success(response.body())
+            } else {
+                _responseLiveData.value = Resource.Failure(response.body())
+            }
+        }
+    }
+
+
+
     fun fetchSearchGiphy(query: String? = null) =
-        liveData(Dispatchers.IO) {//Esta funcion es la que sera llamada desde la interfaz grafica
-            emit(Resource.Loading()) //con el estado de carga avisamos al usuario que se esta haciendo una llamada al servidor
+        liveData(Dispatchers.IO) {
+            emit(Resource.Loading())
 
             var response: Response<List<Giph>>? = null
             if (!query.isNullOrEmpty()) {
@@ -37,7 +62,7 @@ class GiphosViewModel(private val repo: GiphyRepository) :
         }
 }
 
-//creamos el factory para ingresar el parametro repo en el constructor
+
 class GiphyViewModelFactory(private val repo: GiphyRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return modelClass.getConstructor(GiphyRepository::class.java).newInstance(repo)
