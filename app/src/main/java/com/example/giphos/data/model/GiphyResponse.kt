@@ -3,7 +3,7 @@ package com.example.giphos
 import com.google.gson.annotations.SerializedName
 
 data class GiphySearchResponse (
-    @SerializedName("data") var data:List<GiphyItem>
+    @SerializedName("data") var data:List<GiphyItem> = listOf()
 )
 
 data class GiphyRandomResponse (

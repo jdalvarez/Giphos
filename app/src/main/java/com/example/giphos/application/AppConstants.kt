@@ -1,6 +1,6 @@
-package com.example.giphos
+package com.example.giphos.application
 
-object AppConstants {
+object AppConstants {   //cada vez que usemos appconstants va a usar la misma instancia, es como un singleton
     //APPI
     const val HOST_NAME = "api.giphy.com"
     const val BASE_URL = "https://$HOST_NAME/v1/gifs/"

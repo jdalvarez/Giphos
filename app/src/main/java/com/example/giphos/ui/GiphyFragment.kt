@@ -1,6 +1,5 @@
-package com.example.giphos
+package com.example.giphos.ui
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -8,20 +7,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.giphos.application.AppConstants
+import com.example.giphos.GiphAdapter
+import com.example.giphos.GiphyItem
 import com.example.giphos.databinding.FragmentGiphyBinding
+import com.example.giphos.repository.ApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class GiphyFragment : Fragment(){//, SearchView.OnQueryTextListener {
     private lateinit var binding: FragmentGiphyBinding
-    private lateinit var adapter:GiphAdapter
+    private lateinit var adapter: GiphAdapter
     lateinit var mContext: Context
 
     override fun onAttach(context: Context) {
@@ -56,17 +56,19 @@ class GiphyFragment : Fragment(){//, SearchView.OnQueryTextListener {
 
     private fun search(){
         CoroutineScope(Dispatchers.IO).launch {
+            try{
                 val response = getRetrofit().create(ApiService::class.java).getSearchGiphy( query = "a")
                 if (response.isSuccessful) {
                     val giphyResponse = response.body()
                     val giphys: List<GiphyItem> = giphyResponse?.data ?: emptyList()
+
                     CoroutineScope(Dispatchers.Main).launch {
                         adapter.setData(giphys)
                     }
-
-                } else {
-                    //show error
                 }
+            } catch (e:Exception){
+                Log.d("exception","${e.message}")
+            }
 
 
 

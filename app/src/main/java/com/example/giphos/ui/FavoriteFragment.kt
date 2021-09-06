@@ -1,4 +1,4 @@
-package com.example.giphos
+package com.example.giphos.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
